@@ -1,0 +1,82 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "webappNameFront": {
+            "type": "string"
+        },
+        "webappNameBack": {
+            "type": "string"
+        },
+        "appServicePlanName": {
+            "type": "string"
+        },
+        "templateUri": {
+            "type": "string"
+        },
+        "templateSas": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "webApptemplate": "[concat(parameters('templateUri'), '/templateWebapp.json', parameters('templateSas'))]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2016-09-01",
+            "name": "[parameters('appServicePlanName')]",
+            "type": "Microsoft.Web/serverfarms",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "S1",
+                "capacity": 1
+            },
+            "tags": {
+                "displayName": "[parameters('appServicePlanName')]"
+            },
+            "properties": {
+                "name": "[parameters('appServicePlanName')]"
+            }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "nestedTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('webApptemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {                   
+                    "webappName": {
+                        "value": "[parameters('webappNameFront')]"
+                    },
+                    "appServicePlanName": {
+                        "value": "[parameters('appServicePlanName')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "nestedTemplate2",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('webApptemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {                   
+                    "webappName": {
+                        "value": "[parameters('webappNameBack')]"
+                    },
+                    "appServicePlanName": {
+                        "value": "[parameters('appServicePlanName')]"
+                    }
+                }
+            }
+        }
+    ]
+}

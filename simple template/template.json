@@ -1,0 +1,58 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "webappName": {
+           "type": "string",
+           "metadata": {
+                "description": "This parameter correspond to the webapp name"
+            }
+        },
+        "appServiceName": {
+           "type": "string",
+           "metadata": {
+                "description": "This parameter bla"
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "apiVersion": "2016-09-01",
+            "name": "[parameters('appServiceName')]",
+            "type": "Microsoft.Web/serverfarms",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "S1",
+                "capacity": 1
+            },
+            "tags": {
+                "displayName": "[parameters('appServiceName')]"
+            },
+            "properties": {
+                "name": "[parameters('appServiceName')]"
+            }
+        },
+        {
+            "apiVersion": "2015-08-01",
+            "name": "[parameters('webappName')]",
+            "type": "Microsoft.Web/sites",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('appServiceName'))]": "Resource",
+                "displayName": "[parameters('webappName')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Web/serverfarms/', parameters('appServiceName'))]"
+            ],
+            "properties": {
+                "name": "[parameters('webappName')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('appServiceName'))]",
+                "siteConfig" : {
+                    "alwaysOn" : "true"
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}

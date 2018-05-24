@@ -1,0 +1,4 @@
+az login
+az group create --name "demo" --location "eastus"
+az group delete --name "demo"
+az group deployment create --resource-group "demo" --template-file "emptytemplate.json" 

@@ -1,0 +1,40 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "webappName": {
+           "type": "string",
+           "metadata": {
+                "description": "This parameter correspond to the webapp name"
+            }
+        },
+        "appServicePlanName": {
+           "type": "string",
+           "metadata": {
+                "description": "This parameter correspond to the app service plan"
+            }
+        }
+    },
+    "variables": {},
+    "resources": [        
+        {
+            "apiVersion": "2015-08-01",
+            "name": "[parameters('webappName')]",
+            "type": "Microsoft.Web/sites",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('appServicePlanName'))]": "Resource",
+                "displayName": "[parameters('webappName')]"
+            },
+            "dependsOn": [],
+            "properties": {
+                "name": "[parameters('webappName')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('appServicePlanName'))]",
+                "siteConfig" : {
+                    "alwaysOn" : "true"
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}
